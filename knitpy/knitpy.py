@@ -699,6 +699,9 @@ class Knitpy(LoggingConfigurable):
         # save here to change back after the conversation.
         orig_cwd = getcwd()
         needs_chdir = False
+        
+        # save original filename as pass in so we can include it in output
+        input_filename = filename
 
         # expand $HOME and so on...
         filename = expand_path(filename)
@@ -707,6 +710,12 @@ class Knitpy(LoggingConfigurable):
 
         basedir = os.path.dirname(filename)
         basename = os.path.splitext(os.path.basename(filename))[0]
+
+        # no reason to continue past this point if we dont have
+        # a valid file path, so check it here and provide a clear
+        # failure message since this a common mistake
+        if not os.path.exists(filename):
+            raise IOError('File not found: %s\nExpanded path: %s' % (input_filename, filename))
 
         # It's easier if we just change wd to the dir of the file
         if unicode_type(basedir) != getcwd():
